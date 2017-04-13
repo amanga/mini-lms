@@ -1,5 +1,8 @@
 package com.bunge.lms.tests;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +32,11 @@ public class QuestionDaoTest {
 	@Test
 	public void testQuestionDao() {
 		try {
-			questionService.findByText("what is value of 2 power 2?");
+			String excelSheetFilePath = getClass().getClassLoader().getResource("Java_question_1.xlsx").getPath();
+			File excelFile = new File(excelSheetFilePath);
+			FileInputStream fInputStream = new FileInputStream(excelFile);
+			questionService.save(fInputStream, excelFile.getName());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

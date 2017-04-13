@@ -51,8 +51,11 @@ public class Question implements Serializable {
 	@Column(name = "REQUIRED")
 	private Boolean qRequired;
 
-	@OneToMany(mappedBy = "question", fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+	@OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Answer> answers;
+
+	@Column(name = "LEVEL")
+	private String level;
 
 	public Long getqId() {
 		return qId;
@@ -148,6 +151,14 @@ public class Question implements Serializable {
 
 	public Boolean getqRequired() {
 		return qRequired;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
 	}
 
 	@Override
