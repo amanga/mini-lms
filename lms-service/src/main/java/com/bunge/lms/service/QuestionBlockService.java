@@ -3,7 +3,6 @@ package com.bunge.lms.service;
 import java.io.FileInputStream;
 import java.util.List;
 
-import com.bunge.lms.domain.Question;
 import com.bunge.lms.domain.QuestionBlock;
 
 public interface QuestionBlockService {

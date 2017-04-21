@@ -1,5 +1,6 @@
 package com.bunge.lms.domain;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +18,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "QUESTIONBLOCK")
-public class QuestionBlock {
+public class QuestionBlock implements Serializable{
+
+	private static final long serialVersionUID = 985350371026706462L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +47,9 @@ public class QuestionBlock {
 			@JoinColumn(name = "QUESTIONBLOCK_ID", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "QUESTION_ID", nullable = false, updatable = false) })
 	private Set<Question> questions = new HashSet<Question>();
+	
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questionBlocks")
+	private Set<Assessment> assessments;
 
 	public Long getQbId() {
 		return qbId;
