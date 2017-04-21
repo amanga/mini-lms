@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -56,6 +57,12 @@ public class Question implements Serializable {
 
 	@Column(name = "LEVEL")
 	private String level;
+
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questions")
+	private Set<QuestionBlock> questionBlocks;
+
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questions")
+	private Set<Tag> tags;
 
 	public Long getqId() {
 		return qId;
@@ -159,6 +166,22 @@ public class Question implements Serializable {
 
 	public void setLevel(String level) {
 		this.level = level;
+	}
+
+	public Set<QuestionBlock> getQuestionBlocks() {
+		return questionBlocks;
+	}
+
+	public void setQuestionBlocks(Set<QuestionBlock> questionBlocks) {
+		this.questionBlocks = questionBlocks;
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
 	}
 
 	@Override

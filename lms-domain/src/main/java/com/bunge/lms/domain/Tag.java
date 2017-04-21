@@ -1,8 +1,10 @@
 package com.bunge.lms.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -32,14 +36,12 @@ public class Tag implements Serializable {
 	private String title;
 
 	@ManyToOne
-	@JoinColumn(name = "PARENTTAG_ID", nullable=true)
+	@JoinColumn(name = "PARENTTAG_ID", nullable = true)
 	private Tag parentTagId;
-	
-	
-	@OneToMany(mappedBy="parentTagId", fetch=FetchType.LAZY)
+
+	@OneToMany(mappedBy = "parentTagId", fetch = FetchType.LAZY)
 	@Fetch(FetchMode.JOIN)
 	private Set<Tag> parentTagIdCols;
-	
 
 	@Column(name = "STATUS")
 	private Boolean status;
@@ -49,6 +51,12 @@ public class Tag implements Serializable {
 
 	@Column(name = "DESCRIPTION")
 	private String description;
+
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(name = "TAG_MAPPING", joinColumns = {
+			@JoinColumn(name = "TAG_ID", nullable = false, updatable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "QUESTION_ID", nullable = false, updatable = false) })
+	private Set<Question> questions = new HashSet<Question>();
 
 	public Long gettId() {
 		return tId;
@@ -106,5 +114,12 @@ public class Tag implements Serializable {
 		this.parentTagIdCols = parentTagIdCols;
 	}
 
-	
+	public Set<Question> getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(Set<Question> questions) {
+		this.questions = questions;
+	}
+
 }

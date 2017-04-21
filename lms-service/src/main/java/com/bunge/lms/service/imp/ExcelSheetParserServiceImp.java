@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import com.bunge.lms.domain.Answer;
 import com.bunge.lms.domain.Question;
+import com.bunge.lms.domain.QuestionBlock;
 import com.bunge.lms.service.ExcelSheetParserService;
 import com.bunge.lms.util.ExcelSheetHelper;
 
@@ -24,19 +25,19 @@ import com.bunge.lms.util.ExcelSheetHelper;
 public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 
 	@Override
-	public List<Question> readQuestionFromExcel(FileInputStream fileInputStream, String fileType) throws Exception {
+	public Map<QuestionBlock, List<Question>> readQuestionFromExcel(FileInputStream fileInputStream, String fileType) throws Exception {
 		Workbook workbook = ExcelSheetHelper.getWorkbook(fileInputStream, fileType);
 		return processWorkbook(workbook);
 	}
 
 	@Override
-	public List<Question> readQuestionsFromExcel(String filePath) throws Exception {
+	public Map<QuestionBlock, List<Question>> readQuestionsFromExcel(String filePath) throws Exception {
 		Workbook workbook = ExcelSheetHelper.getWorkbook(filePath);
 		return processWorkbook(workbook);
 	}
 
-	private List<Question> processWorkbook(Workbook workbook) throws Exception {
-		List<Question> returnQuestions = new ArrayList<Question>();
+	private Map<QuestionBlock, List<Question>> processWorkbook(Workbook workbook) throws Exception {
+		Map<QuestionBlock, List<Question>> returnQuestions = new HashMap<QuestionBlock, List<Question>>();
 
 		int numberOfSheets = workbook.getNumberOfSheets();
 		for (int i = 0; i < numberOfSheets; i++) {
@@ -44,11 +45,10 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 
 			Iterator<Row> rowItr = sheet.iterator();
 			while (rowItr.hasNext()) {
+				QuestionBlock questionBlock = new QuestionBlock();
 				Question question = new Question();
 				Map<String, Answer> answerCol = new HashMap<String, Answer>();
-
 				Row nextRow = rowItr.next();
-
 				if (nextRow.getRowNum() == 0) {
 					System.out.println("Skipping the row # 0");
 					continue;
@@ -61,6 +61,9 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 
 					case 0:
 						// question.setqId(((Double)getCellValue(cell)).longValue());
+						questionBlock.setTitle(getString(getCellValue(cell)));
+						questionBlock.setStatus(true);
+						
 						break;
 					case 1:
 						question.setqTitle(getString(getCellValue(cell)));
@@ -141,8 +144,19 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 
 					}
 				}
+				//adding answers to question..
 				question.setAnswers(new HashSet<Answer>(answerCol.values()));
-				returnQuestions.add(question);
+				
+				//adding question to questionblock...
+				List<Question> questionCol = null;
+				if(returnQuestions.containsKey(questionBlock)){
+					questionCol = returnQuestions.get(questionBlock);
+				}else{
+					questionCol = new ArrayList<Question>();
+				}
+				questionCol.add(question);
+				
+				returnQuestions.put(questionBlock,questionCol);
 			}
 		}
 		return returnQuestions;
