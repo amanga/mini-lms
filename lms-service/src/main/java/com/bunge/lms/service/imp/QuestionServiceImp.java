@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bunge.lms.dao.QuestionDao;
+import com.bunge.lms.domain.Assessment;
 import com.bunge.lms.domain.Question;
 import com.bunge.lms.domain.QuestionBlock;
 import com.bunge.lms.service.ExcelSheetParserService;
@@ -29,31 +30,35 @@ public class QuestionServiceImp implements QuestionService {
 	@Override
 	@Transactional
 	public void save(FileInputStream fInputstream, String fileName) throws Exception {
-		Map<QuestionBlock, List<Question>> qBlockQCol = excelSheetParserService.readQuestionFromExcel(fInputstream, fileName);
+//		Map<QuestionBlock, List<Question>> qBlockQCol = excelSheetParserService.readQuestionFromExcel(fInputstream, fileName);
 		
-		List<Question> qCol = getQuestions(qBlockQCol);
-		
-		//only process below statements if excel file has questions.
-		if(!qCol.isEmpty()){
-			Iterator<Question> qItr = qCol.iterator();
-			while(qItr.hasNext()){
-				Question question = qItr.next();
-				if(question != null){
-					save(question);
+		Map<Assessment, Map<QuestionBlock,List<Question>>> asm = excelSheetParserService.readQuestionFromExcel(fInputstream, fileName);
+
+		Set<Assessment> asmKeyCol = asm.keySet();
+		Iterator<Assessment> asmItr = asmKeyCol.iterator();
+		while(asmItr.hasNext()){
+			List<Question> qCol = getQuestions(asm.get(asmItr.next()));
+			//only process below statements if excel file has questions.
+			if(!qCol.isEmpty()){
+				Iterator<Question> qItr = qCol.iterator();
+				while(qItr.hasNext()){
+					Question question = qItr.next();
+					if(question != null){
+						save(question);
+					}
 				}
 			}
-		}
+		}		
 	}
 	
-	private List<Question> getQuestions(Map<QuestionBlock, List<Question>> qBlockQCol){
+	private List<Question> getQuestions(Map<QuestionBlock,List<Question>> qBlockCol){
 		List<Question> questionCol = new ArrayList<Question>();
 		//Iterate through all questionblocks 
-		Set<QuestionBlock> qbCol = qBlockQCol.keySet();
-		Iterator<QuestionBlock> qbItr = qbCol.iterator();
+		Set<QuestionBlock> qBlockSetCol = qBlockCol.keySet();
+		Iterator<QuestionBlock> qbItr = qBlockSetCol.iterator();
 		while(qbItr.hasNext()){
 			QuestionBlock questionBlock  = qbItr.next();
-			List<Question> questions = qBlockQCol.get(questionBlock);
-			questionCol.addAll(questions);
+			questionCol.addAll(qBlockCol.get(questionBlock));
 		}
 		return questionCol;
 	}

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.bunge.lms.domain.Answer;
+import com.bunge.lms.domain.Assessment;
 import com.bunge.lms.domain.Question;
 import com.bunge.lms.domain.QuestionBlock;
 import com.bunge.lms.service.ExcelSheetParserService;
@@ -25,26 +26,27 @@ import com.bunge.lms.util.ExcelSheetHelper;
 public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 
 	@Override
-	public Map<QuestionBlock, List<Question>> readQuestionFromExcel(FileInputStream fileInputStream, String fileType) throws Exception {
+	public  Map<Assessment, Map<QuestionBlock,List<Question>>> readQuestionFromExcel(FileInputStream fileInputStream, String fileType) throws Exception {
 		Workbook workbook = ExcelSheetHelper.getWorkbook(fileInputStream, fileType);
 		return processWorkbook(workbook);
 	}
 
 	@Override
-	public Map<QuestionBlock, List<Question>> readQuestionsFromExcel(String filePath) throws Exception {
+	public  Map<Assessment, Map<QuestionBlock,List<Question>>> readQuestionsFromExcel(String filePath) throws Exception {
 		Workbook workbook = ExcelSheetHelper.getWorkbook(filePath);
 		return processWorkbook(workbook);
 	}
 
-	private Map<QuestionBlock, List<Question>> processWorkbook(Workbook workbook) throws Exception {
-		Map<QuestionBlock, List<Question>> returnQuestions = new HashMap<QuestionBlock, List<Question>>();
-
+	private Map<Assessment, Map<QuestionBlock,List<Question>>> processWorkbook(Workbook workbook) throws Exception {
+		Map<Assessment, Map<QuestionBlock, List<Question>>> returnAssessment = new HashMap<Assessment, Map<QuestionBlock, List<Question>>>();
+	
 		int numberOfSheets = workbook.getNumberOfSheets();
 		for (int i = 0; i < numberOfSheets; i++) {
 			Sheet sheet = workbook.getSheetAt(i);
 
 			Iterator<Row> rowItr = sheet.iterator();
 			while (rowItr.hasNext()) {
+				Assessment asm = new Assessment();
 				QuestionBlock questionBlock = new QuestionBlock();
 				Question question = new Question();
 				Map<String, Answer> answerCol = new HashMap<String, Answer>();
@@ -58,37 +60,42 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 					Cell cell = cellItr.next();
 					int columnIndex = cell.getColumnIndex();
 					switch (columnIndex) {
-
+					
 					case 0:
+						//Assessment Title...
+						asm.setTitle(getString(getCellValue(cell)));
+						asm.setStatus(true);
+						break;
+					case 1:
 						// question.setqId(((Double)getCellValue(cell)).longValue());
 						questionBlock.setTitle(getString(getCellValue(cell)));
 						questionBlock.setStatus(true);
 						
 						break;
-					case 1:
+					case 2:
 						question.setqTitle(getString(getCellValue(cell)));
 						break;
-					case 2:
+					case 3:
 						question.setqSubTitle(getString(getCellValue(cell)));
 						break;
-					case 3:
+					case 4:
 						question.setqTitleType(getString(getCellValue(cell)));
 						break;
-					case 4:
+					case 5:
 						question.setqComment(getString(getCellValue(cell)));
 						break;
-					case 5:
+					case 6:
 						question.setqDesc(getString(getCellValue(cell)));
 						break;
-					case 6:
+					case 7:
 						question.setqFlag(getString(getCellValue(cell)) == "1");
 						break;
-					case 7:
-						break;
 					case 8:
-						question.setqExplanation(getString(getCellValue(cell)));
 						break;
 					case 9:
+						question.setqExplanation(getString(getCellValue(cell)));
+						break;
+					case 10:
 						String answerValA = getString(getCellValue(cell));
 						if (!StringUtils.isEmpty(answerValA)) {
 							Answer answerA = new Answer();
@@ -97,7 +104,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							answerCol.put("A", answerA);
 						}
 						break;
-					case 10:
+					case 11:
 						String answerValB = getString(getCellValue(cell));
 						if (!StringUtils.isEmpty(answerValB)) {
 							Answer answerB = new Answer();
@@ -106,7 +113,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							answerCol.put("B", answerB);
 						}
 						break;
-					case 11:
+					case 12:
 						String answerValC = getString(getCellValue(cell));
 						if (!StringUtils.isEmpty(answerValC)) {
 							Answer answerC = new Answer();
@@ -115,7 +122,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							answerCol.put("C", answerC);
 						}
 						break;
-					case 12:
+					case 13:
 						String answerValD = getString(getCellValue(cell));
 						if (!StringUtils.isEmpty(answerValD)) {
 							Answer answerD = new Answer();
@@ -124,7 +131,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							answerCol.put("D", answerD);
 						}
 						break;
-					case 13:
+					case 14:
 						String answerValE = getString(getCellValue(cell));
 						if (!StringUtils.isEmpty(answerValE)) {
 							Answer answerE = new Answer();
@@ -133,7 +140,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							answerCol.put("E", answerE);
 						}
 						break;
-					case 14:
+					case 15:
 						String correctStringVals = getString(getCellValue(cell));
 						String[] correctAnswers = correctStringVals.split(",");
 						for (String answer : correctAnswers) {
@@ -141,26 +148,55 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 							correctAnswer.setCorrectFlag(true);
 						}
 						break;
-
 					}
 				}
+				
 				//adding answers to question..
 				question.setAnswers(new HashSet<Answer>(answerCol.values()));
 				
-				//adding question to questionblock...
+				Map<QuestionBlock,List<Question>> qBlockCol = null;
+				if(returnAssessment.containsKey(asm)){
+					qBlockCol = returnAssessment.get(asm);
+				}else{
+					qBlockCol = new HashMap<QuestionBlock,List<Question>>();
+				}
+				
 				List<Question> questionCol = null;
-				if(returnQuestions.containsKey(questionBlock)){
-					questionCol = returnQuestions.get(questionBlock);
+				if(qBlockCol.containsKey(questionBlock)){
+					questionCol = qBlockCol.get(questionBlock);
 				}else{
 					questionCol = new ArrayList<Question>();
 				}
 				questionCol.add(question);
+				qBlockCol.put(questionBlock, questionCol);
 				
-				returnQuestions.put(questionBlock,questionCol);
+				returnAssessment.put(asm, qBlockCol);
+				
 			}
 		}
-		return returnQuestions;
+		
+		return returnAssessment;
 	}
+	
+	/*private Map<Assessment, List<QuestionBlock>> normalizedAssessment(Map<Assessment,List<QuestionBlock>> asmCol, Map<QuestionBlock, List<Question>> qBlockCol){
+		Map<Assessment, List<QuestionBlock>> rtnObj = new HashMap<Assessment, List<QuestionBlock>>();
+		
+		Set<Assessment> asmSetObj = asmCol.keySet();
+		Iterator<Assessment> asmItr = asmSetObj.iterator();
+		while(asmItr.hasNext()){
+			Assessment asmKey = asmItr.next();
+			List<QuestionBlock> qBlockList = asmCol.get(asmKey);
+			Iterator<QuestionBlock> qBlockItr = qBlockList.iterator();
+			while(qBlockItr.hasNext()){
+				QuestionBlock qBlockKey = qBlockItr.next();
+				if(qBlockCol.containsKey(qBlockKey)){
+					qBlockKey.setQuestions(new HashSet<Question>(qBlockCol.get(qBlockKey)));
+				}
+			}
+			rtnObj.put(asmKey, qBlockList);
+		}
+		return rtnObj;
+	}*/
 
 	private Object getCellValue(Cell cell) {
 		switch (cell.getCellType()) {

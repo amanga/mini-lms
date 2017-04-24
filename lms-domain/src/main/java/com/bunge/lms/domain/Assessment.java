@@ -18,7 +18,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ASSESSMENT")
-public class Assessment implements Serializable{
+public class Assessment implements Serializable {
 
 	private static final long serialVersionUID = -8556082127887586490L;
 
@@ -41,6 +41,13 @@ public class Assessment implements Serializable{
 
 	@Column(name = "DESCRIPTION")
 	private String qcDesc;
+	
+	@Column(name = "MINQUESTIONS")
+	private Integer minimumQuestions;
+	
+	@Column(name = "MAXQUESTIONS")
+	private Integer maximumQuestions;
+	
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(name = "ASSESSMENT_MAPPING", joinColumns = {
@@ -48,5 +55,91 @@ public class Assessment implements Serializable{
 					@JoinColumn(name = "QUESTIONBLOCK_ID", nullable = false, updatable = false) })
 	private Set<QuestionBlock> questionBlocks = new HashSet<QuestionBlock>();
 
-	
+	public Long getQbId() {
+		return qbId;
+	}
+
+	public void setQbId(Long qbId) {
+		this.qbId = qbId;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
+	public Boolean getStatus() {
+		return status;
+	}
+
+	public void setStatus(Boolean status) {
+		this.status = status;
+	}
+
+	public String getQcComment() {
+		return qcComment;
+	}
+
+	public void setQcComment(String qcComment) {
+		this.qcComment = qcComment;
+	}
+
+	public String getQcDesc() {
+		return qcDesc;
+	}
+
+	public void setQcDesc(String qcDesc) {
+		this.qcDesc = qcDesc;
+	}
+
+	public Set<QuestionBlock> getQuestionBlocks() {
+		return questionBlocks;
+	}
+
+	public void setQuestionBlocks(Set<QuestionBlock> questionBlocks) {
+		this.questionBlocks = questionBlocks;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Assessment other = (Assessment) obj;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		if (title == null) {
+			if (other.title != null)
+				return false;
+		} else if (!title.equals(other.title))
+			return false;
+		return true;
+	}
+
 }
