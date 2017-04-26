@@ -2,10 +2,8 @@ package com.bunge.lms.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,8 +22,8 @@ public class Answer implements Serializable {
 	@Column(name = "ANSWER_ID", unique = true)
 	private Long qcId;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "QUESTION_ID", nullable=false)
+	@ManyToOne
+	@JoinColumn(name = "QUESTION_ID")
 	private Question question;
 
 	@Column(name = "TITLE")

@@ -1,6 +1,7 @@
 package com.bunge.lms.domain;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "QUESTIONS")
@@ -51,17 +55,20 @@ public class Question implements Serializable {
 
 	@Column(name = "REQUIRED")
 	private Boolean qRequired;
-
-	@OneToMany(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private Set<Answer> answers;
+	
+	@OneToMany(mappedBy="question",fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+	@Fetch(FetchMode.SELECT)
+	private List<Answer> answers;
 
 	@Column(name = "LEVEL")
 	private String level;
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questions")
+	@Fetch(FetchMode.SELECT)
 	private Set<QuestionBlock> questionBlocks;
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questions")
+	@Fetch(FetchMode.SELECT)
 	private Set<Tag> tags;
 
 	public Long getqId() {
@@ -144,11 +151,11 @@ public class Question implements Serializable {
 		this.qRequired = qRequired;
 	}
 
-	public Set<Answer> getAnswers() {
+	public List<Answer> getAnswers() {
 		return answers;
 	}
 
-	public void setAnswers(Set<Answer> answers) {
+	public void setAnswers(List<Answer> answers) {
 		this.answers = answers;
 	}
 
@@ -168,7 +175,7 @@ public class Question implements Serializable {
 		this.level = level;
 	}
 
-	public Set<QuestionBlock> getQuestionBlocks() {
+	/*public Set<QuestionBlock> getQuestionBlocks() {
 		return questionBlocks;
 	}
 
@@ -182,7 +189,7 @@ public class Question implements Serializable {
 
 	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
-	}
+	}*/
 
 	@Override
 	public String toString() {

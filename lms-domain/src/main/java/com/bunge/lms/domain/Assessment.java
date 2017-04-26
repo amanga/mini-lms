@@ -1,8 +1,8 @@
 package com.bunge.lms.domain;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,6 +16,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity
 @Table(name = "ASSESSMENT")
 public class Assessment implements Serializable {
@@ -25,7 +28,7 @@ public class Assessment implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ASSESSMENT_ID", unique = true)
-	private Long qbId;
+	private Long asmId;
 
 	@Column(name = "TITLE")
 	private String title;
@@ -41,26 +44,26 @@ public class Assessment implements Serializable {
 
 	@Column(name = "DESCRIPTION")
 	private String qcDesc;
-	
+
 	@Column(name = "MINQUESTIONS")
 	private Integer minimumQuestions;
-	
+
 	@Column(name = "MAXQUESTIONS")
 	private Integer maximumQuestions;
-	
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "ASSESSMENT_MAPPING", joinColumns = {
 			@JoinColumn(name = "ASSESSMENT_ID", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "QUESTIONBLOCK_ID", nullable = false, updatable = false) })
-	private Set<QuestionBlock> questionBlocks = new HashSet<QuestionBlock>();
+	@Fetch(FetchMode.SELECT)
+	private List<QuestionBlock> questionBlocks = new ArrayList<QuestionBlock>();
 
-	public Long getQbId() {
-		return qbId;
+	public Long getAsmId() {
+		return asmId;
 	}
 
-	public void setQbId(Long qbId) {
-		this.qbId = qbId;
+	public void setAsmId(Long asmId) {
+		this.asmId = asmId;
 	}
 
 	public String getTitle() {
@@ -103,11 +106,11 @@ public class Assessment implements Serializable {
 		this.qcDesc = qcDesc;
 	}
 
-	public Set<QuestionBlock> getQuestionBlocks() {
+	public List<QuestionBlock> getQuestionBlocks() {
 		return questionBlocks;
 	}
 
-	public void setQuestionBlocks(Set<QuestionBlock> questionBlocks) {
+	public void setQuestionBlocks(List<QuestionBlock> questionBlocks) {
 		this.questionBlocks = questionBlocks;
 	}
 
@@ -140,6 +143,12 @@ public class Assessment implements Serializable {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Assessment [title=" + title + ", note=" + note + ", status=" + status + ", questionBlocks="
+				+ questionBlocks + "]";
 	}
 
 }

@@ -2,7 +2,6 @@ package com.bunge.lms.service.imp;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,37 +19,38 @@ import com.bunge.lms.service.AssessmentService;
 import com.bunge.lms.service.ExcelSheetParserService;
 
 @Service
+@Transactional
 public class AssessmentServiceImp implements AssessmentService {
-	
+
 	@Autowired
 	private ExcelSheetParserService excelSheetParserService;
-	
+
 	@Autowired
 	private AssessmentDao assessmentDao;
-	
 
 	@Override
 	@Transactional
 	public void save(FileInputStream fInputstream, String fileName) throws Exception {
-		Map<Assessment, Map<QuestionBlock,List<Question>>> asm = excelSheetParserService.readQuestionFromExcel(fInputstream, fileName);
-		
+		Map<Assessment, Map<QuestionBlock, List<Question>>> asm = excelSheetParserService
+				.readQuestionFromExcel(fInputstream, fileName);
+
 		Set<Assessment> asmKeyCol = asm.keySet();
 		Iterator<Assessment> asmItr = asmKeyCol.iterator();
-		while(asmItr.hasNext()){
+		while (asmItr.hasNext()) {
 			Assessment asmKey = asmItr.next();
 			Map<QuestionBlock, List<Question>> qBlockCol = asm.get(asmKey);
 			Set<QuestionBlock> qBlockSet = qBlockCol.keySet();
 			Iterator<QuestionBlock> qbItr = qBlockSet.iterator();
 			List<QuestionBlock> questionBlocks = new ArrayList<QuestionBlock>();
-			
-			while(qbItr.hasNext()){
-				QuestionBlock questionBlock  = qbItr.next();
-				List<Question> qList =  qBlockCol.get(questionBlock);
-				questionBlock.setQuestions(new HashSet<Question>(qList));
+
+			while (qbItr.hasNext()) {
+				QuestionBlock questionBlock = qbItr.next();
+				List<Question> qList = qBlockCol.get(questionBlock);
+				questionBlock.setQuestions(qList);
 				questionBlocks.add(questionBlock);
 			}
-			asmKey.setQuestionBlocks(new HashSet<QuestionBlock>(questionBlocks));
-			if(asmKey!=null){
+			asmKey.setQuestionBlocks(new ArrayList<QuestionBlock>(questionBlocks));
+			if (asmKey != null) {
 				save(asmKey);
 			}
 		}
@@ -66,7 +66,6 @@ public class AssessmentServiceImp implements AssessmentService {
 	@Transactional
 	public void save(Assessment assessment) throws Exception {
 		assessmentDao.persist(assessment);
-
 	}
 
 	@Override

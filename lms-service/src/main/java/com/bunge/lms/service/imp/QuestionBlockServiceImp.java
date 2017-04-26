@@ -1,7 +1,6 @@
 package com.bunge.lms.service.imp;
 
 import java.io.FileInputStream;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,7 @@ public class QuestionBlockServiceImp implements QuestionBlockService {
 			while(qbItr.hasNext()){
 				QuestionBlock questionBlock  = qbItr.next();
 				List<Question> qList =  qBlockCol.get(questionBlock);
-				questionBlock.setQuestions(new HashSet<Question>(qList));
+				questionBlock.setQuestions(qList);
 				if(questionBlock!=null){
 					save(questionBlock);
 				}

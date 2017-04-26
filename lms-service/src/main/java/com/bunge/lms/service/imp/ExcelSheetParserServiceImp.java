@@ -3,7 +3,6 @@ package com.bunge.lms.service.imp;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +151,7 @@ public class ExcelSheetParserServiceImp implements ExcelSheetParserService {
 				}
 				
 				//adding answers to question..
-				question.setAnswers(new HashSet<Answer>(answerCol.values()));
+				question.setAnswers(new ArrayList<Answer>(answerCol.values()));
 				
 				Map<QuestionBlock,List<Question>> qBlockCol = null;
 				if(returnAssessment.containsKey(asm)){

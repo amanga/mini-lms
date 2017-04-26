@@ -1,7 +1,8 @@
 package com.bunge.lms.domain;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -16,9 +17,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity
 @Table(name = "QUESTIONBLOCK")
-public class QuestionBlock implements Serializable{
+public class QuestionBlock implements Serializable {
 
 	private static final long serialVersionUID = 985350371026706462L;
 
@@ -42,12 +46,13 @@ public class QuestionBlock implements Serializable{
 	@Column(name = "DESCRIPTION")
 	private String qcDesc;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "QUESTIONBLOCK_MAPPING", joinColumns = {
 			@JoinColumn(name = "QUESTIONBLOCK_ID", nullable = false, updatable = false) }, inverseJoinColumns = {
 					@JoinColumn(name = "QUESTION_ID", nullable = false, updatable = false) })
-	private Set<Question> questions = new HashSet<Question>();
-	
+	@Fetch(FetchMode.SELECT)
+	private List<Question> questions = new ArrayList<Question>();
+
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "questionBlocks")
 	private Set<Assessment> assessments;
 
@@ -99,11 +104,11 @@ public class QuestionBlock implements Serializable{
 		this.qcDesc = qcDesc;
 	}
 
-	public Set<Question> getQuestions() {
+	public List<Question> getQuestions() {
 		return questions;
 	}
 
-	public void setQuestions(Set<Question> questions) {
+	public void setQuestions(List<Question> questions) {
 		this.questions = questions;
 	}
 
@@ -136,6 +141,12 @@ public class QuestionBlock implements Serializable{
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "QuestionBlock [title=" + title + ", note=" + note + ", status=" + status + ", questions=" + questions
+				+ "]";
 	}
 
 }
