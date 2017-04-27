@@ -45,10 +45,10 @@ public class Assessment implements Serializable {
 	@Column(name = "DESCRIPTION")
 	private String qcDesc;
 
-	@Column(name = "MINQUESTIONS", columnDefinition = "int default 10")
+	@Column(name = "MINQUESTIONS")
 	private Integer minimumQuestions;
 
-	@Column(name = "MAXQUESTIONS", columnDefinition = "int default 10")
+	@Column(name = "MAXQUESTIONS")
 	private Integer maximumQuestions;
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -57,9 +57,6 @@ public class Assessment implements Serializable {
 					@JoinColumn(name = "QUESTIONBLOCK_ID", nullable = false, updatable = false) })
 	@Fetch(FetchMode.SELECT)
 	private List<QuestionBlock> questionBlocks = new ArrayList<QuestionBlock>();
-
-	@Column(name = "SCORE", columnDefinition = "int default 60")
-	private Integer passingScore;
 
 	public Long getAsmId() {
 		return asmId;
@@ -115,30 +112,6 @@ public class Assessment implements Serializable {
 
 	public void setQuestionBlocks(List<QuestionBlock> questionBlocks) {
 		this.questionBlocks = questionBlocks;
-	}
-
-	public Integer getMinimumQuestions() {
-		return minimumQuestions;
-	}
-
-	public void setMinimumQuestions(Integer minimumQuestions) {
-		this.minimumQuestions = minimumQuestions;
-	}
-
-	public Integer getMaximumQuestions() {
-		return maximumQuestions;
-	}
-
-	public void setMaximumQuestions(Integer maximumQuestions) {
-		this.maximumQuestions = maximumQuestions;
-	}
-
-	public Integer getPassingScore() {
-		return passingScore;
-	}
-
-	public void setPassingScore(Integer passingScore) {
-		this.passingScore = passingScore;
 	}
 
 	@Override
